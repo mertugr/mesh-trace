@@ -1,0 +1,147 @@
+<scene>
+    <maxraytracedepth>4</maxraytracedepth>
+    <background>15 20 30</background>
+
+    <camera>
+        <position>0 0 2</position>
+        <gaze>0 0 -1</gaze>
+        <up>0 1 0</up>
+        <nearplane>-0.75 0.75 -0.6 0.6</nearplane>
+        <neardistance>1</neardistance>
+        <imageresolution>800 800</imageresolution>
+    </camera>
+
+    <lights>
+        <ambientlight>20 20 20</ambientlight>
+
+        <pointlight id="1">
+            <position>-2 2 2</position>
+            <intensity>1800 1800 1800</intensity>
+        </pointlight>
+
+        <pointlight id="2">
+            <position>2 2 1</position>
+            <intensity>1300 1300 1300</intensity>
+        </pointlight>
+
+        <triangularlight id="3">
+            <vertex1>0 2 1</vertex1>
+            <vertex2>-1 1 0</vertex2>
+            <vertex3>1 1 0</vertex3>
+            <intensity>40 40 40</intensity>
+        </triangularlight>
+    </lights>
+
+    <materials>
+        <material id="1">
+            <ambient>0.8 0.2 0.2</ambient>
+            <diffuse>0.9 0.2 0.2</diffuse>
+            <specular>0.3 0.3 0.3</specular>
+            <mirrorreflectance>0 0 0</mirrorreflectance>
+            <phongexponent>16</phongexponent>
+            <texturefactor>0.0</texturefactor>
+        </material>
+
+        <material id="2">
+            <ambient>0.3 0.3 0.35</ambient>
+            <diffuse>0.55 0.55 0.6</diffuse>
+            <specular>0.85 0.85 0.85</specular>
+            <mirrorreflectance>0.4 0.4 0.4</mirrorreflectance>
+            <phongexponent>64</phongexponent>
+            <texturefactor>0.0</texturefactor>
+        </material>
+
+        <material id="3">
+            <ambient>1 1 1</ambient>
+            <diffuse>1 1 1</diffuse>
+            <specular>0.1 0.1 0.1</specular>
+            <mirrorreflectance>0 0 0</mirrorreflectance>
+            <phongexponent>8</phongexponent>
+            <texturefactor>1.0</texturefactor>
+        </material>
+
+        <material id="4">
+            <ambient>0.45 0.45 0.45</ambient>
+            <diffuse>0.6 0.6 0.6</diffuse>
+            <specular>0.3 0.3 0.3</specular>
+            <mirrorreflectance>0.25 0.25 0.25</mirrorreflectance>
+            <phongexponent>24</phongexponent>
+            <texturefactor>0.2</texturefactor>
+        </material>
+    </materials>
+
+    <vertexdata>
+        -1.9 -0.8 -4.0
+        -0.5 -0.8 -4.0
+        -0.5  0.8 -4.0
+        -1.9  0.8 -4.0
+
+        -0.3 -0.8 -3.5
+         0.9 -0.8 -3.5
+         0.9  0.8 -3.5
+        -0.3  0.8 -3.5
+
+         1.2 -0.8 -4.2
+         2.2 -0.8 -4.2
+         2.2  0.8 -4.2
+         1.2  0.8 -4.2
+
+        -3.0 -1.0 -2.5
+         3.0 -1.0 -2.5
+         3.0 -1.0 -7.0
+        -3.0 -1.0 -7.0
+    </vertexdata>
+
+    <texturedata>
+        0.0 0.0
+        1.0 0.0
+        1.0 1.0
+        0.0 1.0
+
+        0.0 0.0
+        1.0 0.0
+        1.0 1.0
+        0.0 1.0
+    </texturedata>
+
+    <textureimage>my_texture_only_texture.png</textureimage>
+
+    <normaldata>
+        0.0 0.0 1.0
+        0.0 1.0 0.0
+    </normaldata>
+
+    <objects>
+        <mesh id="1">
+            <materialid>1</materialid>
+            <faces>
+                1/1/1 2/2/1 3/3/1
+                1/1/1 3/3/1 4/4/1
+            </faces>
+        </mesh>
+
+        <mesh id="2">
+            <materialid>3</materialid>
+            <faces>
+                5/1/1 6/2/1 7/3/1
+                5/1/1 7/3/1 8/4/1
+            </faces>
+        </mesh>
+
+        <mesh id="3">
+            <materialid>2</materialid>
+            <faces>
+                9/1/1 10/2/1 11/3/1
+                9/1/1 11/3/1 12/4/1
+            </faces>
+        </mesh>
+
+        <mesh id="4">
+            <materialid>4</materialid>
+            <faces>
+                13/5/2 14/6/2 15/7/2
+                13/5/2 15/7/2 16/8/2
+            </faces>
+        </mesh>
+    </objects>
+</scene>
