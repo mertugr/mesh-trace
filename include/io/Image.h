@@ -15,6 +15,7 @@ public:
     int height() const { return height_; }
 
     void setPixel(int x, int y, const Vec3& color);
+    Vec3 getPixel(int x, int y) const;
     bool savePPM(const std::string& filePath) const;
     bool savePNG(const std::string& filePath) const;
 

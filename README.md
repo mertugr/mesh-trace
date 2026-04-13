@@ -1,79 +1,138 @@
-# Triangle Ray Tracer (PA1 Ready)
+# Ray Tracer
 
-This project is a C++17 ray tracer that reads an XML scene file and writes a rendered image in PPM or PNG format.
+A CPU ray tracer written in C++17. Reads an XML scene description, renders it using recursive Whitted-style ray tracing, and writes the result as a PNG or PPM image.
 
-## Implemented Features
+---
 
-- Triangle-only geometry (`mesh` faces as triangles)
-- Ray-triangle intersection (Moller-Trumbore)
-- Shadow rays with numeric offset (`shadowBias`)
-- Ambient + diffuse + specular (Phong)
-- Mirror reflection with recursive ray tracing depth
-- Texture sampling with material `texturefactor` blending
-  - `texturefactor = 1.0`: direct texture color, no shading contribution
-  - `texturefactor = 0.0`: texture does not affect final color
-- Point lights
-- Triangular directional lights
-  - Direction follows `(vertex1-vertex2) x (vertex1-vertex3)`
-- Multi-threaded rendering (uses hardware concurrency)
+## Features
+
+### Core (Required)
+- Triangle-only geometry — mesh faces defined as `vertexIdx/texIdx/normalIdx` (OBJ-style)
+- Ray-triangle intersection via Möller-Trumbore algorithm
+- Phong illumination model — ambient + diffuse + specular
+- Shadow rays with configurable epsilon bias to avoid self-intersection
+- Mirror reflections — recursive ray tracing up to `maxraytracedepth`
+- Texture mapping with per-material `texturefactor` blending
+  - `1.0` → pure texture color, shading has no effect
+  - `0.0` → shading only, texture has no effect
+  - `0.0–1.0` → linear blend between shaded color and texture
+- Point lights — radiance falls off with inverse square of distance
+- Triangular directional lights — direction = `(v1−v2) × (v1−v3)`
+- Multiple materials, lights, and meshes per scene
+
+### Optimization
+- **BVH with SAH** — Surface Area Heuristic bounding volume hierarchy; O(log n) ray-scene intersection instead of O(n). Built once after parsing, traversed with an iterative stack during rendering.
+- **Multithreading** — Image rows distributed across all available CPU cores via `std::thread`.
+
+### Libraries Used
+| Library | Purpose |
+|---|---|
+| `tinyxml2` | XML scene file parsing |
+| `stb_image.h` | Texture loading — PNG, JPG, BMP, PPM, TGA, etc. |
+| `stb_image_write.h` | PNG output |
+
+---
 
 ## Build
 
-### Make
-
+### Make (recommended)
 ```bash
-cd /Users/mertugur/cgodev
-make -j4
+make -j8
 ```
 
 ### CMake
-
 ```bash
-cd /Users/mertugur/cgodev
 cmake -S . -B build
-cmake --build build -j4
+cmake --build build -j8
 ```
+
+No external dependencies — zlib and other system libraries are **not** required.
+
+---
 
 ## Run
 
 ```bash
-cd /Users/mertugur/cgodev
-./raytracer scene1.xml output.ppm
-./raytracer scene1.xml output.png
+./raytracer <scene.xml> [output.ppm|output.png]
 ```
 
-Open output on macOS:
+- If the output argument is omitted, it defaults to `output.ppm`
+- The output format is determined by the file extension (`.png` or `.ppm`)
 
+### Examples
 ```bash
-open output.ppm
+# Render to PNG
+./raytracer scene_full_test.xml output.png
+
+# Render to PPM
+./raytracer scene_full_test.xml output.ppm
+
+# UV/texture debug scene
+./raytracer scene_uv_debug.xml output_uv.png
 ```
 
-## Test Scenes
-
-- `scene_test.xml`: minimal sanity scene
-- `scene_full_test.xml`: feature coverage scene (materials, texturefactor, mirror, multiple lights)
-- `scene_1000_triangles.xml`: performance/scale scene with exactly 1000 triangles
-
-## Smoke Tests
-
+### Open the result on macOS
 ```bash
-cd /Users/mertugur/cgodev
-./scripts/run_smoke_tests.sh
+open output.png
 ```
 
-## Performance Example
+---
 
-Measured on this machine for 800x800 with 1000 triangles:
+## Scene Files
 
-```text
-./raytracer scene_1000_triangles.xml output_1000_ready.ppm
-~0.20s wall time
-```
+| File | Description |
+|---|---|
+| `scene_full_test.xml` | Full feature scene — 4 meshes, 3 lights, textures, mirror, multiple materials |
+| `scene_uv_debug.xml` | UV coordinate and texture blending verification scene |
+
+---
 
 ## Project Structure
 
-- `include/`: headers
-- `src/`: implementation
-- `scripts/run_smoke_tests.sh`: quick verification
-- `scene*.xml`: sample test scenes
-- `tinyxml2.*`: XML parsing library source
+```
+cgodev/
+  include/
+    core/         Ray.h, Intersection.h, BVH.h
+    math/         Vec3.h, Vec2.h
+    scene/        Camera.h, Light.h, Material.h, Scene.h, Texture.h, Triangle.h
+    io/           Image.h, SceneParser.h
+    render/       Renderer.h
+  src/
+    core/         BVH.cpp
+    scene/        Camera.cpp, Scene.cpp, Texture.cpp, Triangle.cpp
+    io/           Image.cpp, SceneParser.cpp
+    render/       Renderer.cpp
+    main.cpp
+  stb_image.h           Texture loading
+  stb_image_write.h     PNG output
+  tinyxml2.h / .cpp     XML parsing
+  Makefile
+  CMakeLists.txt
+```
+
+---
+
+## How It Works
+
+1. **Parse** — `SceneParser` reads the XML file: camera, lights, materials, vertex/normal/UV arrays, texture image, and triangle mesh faces. Calls `buildBVH()` when done.
+2. **BVH build** — Triangles are spatially sorted into a binary tree of AABBs using SAH. Leaf nodes hold up to 4 triangles.
+3. **Render** — `Renderer` splits image rows across CPU threads. Each pixel generates a ray from the camera through the image plane.
+4. **Trace** — For each ray:
+   - Test against BVH → find closest triangle hit
+   - For each light: cast shadow ray; if not blocked, accumulate diffuse + specular
+   - If material is reflective: spawn reflected ray recursively (bounded by `maxraytracedepth`)
+   - Blend shaded color with texture using `texturefactor`
+5. **Save** — Clamp pixels to [0, 255] and write PNG or PPM.
+
+---
+
+## Performance
+
+Measured on an 800×800 image:
+
+| Scene | Triangles | Wall time |
+|---|---|---|
+| `scene_full_test.xml` | 8 | ~0.06 s |
+| `scene_uv_debug.xml` | 2 | ~0.03 s |
+
+For large meshes (1000+ triangles), the BVH ensures render time stays fast. Without BVH the cost scales linearly with triangle count; with BVH it scales logarithmically.

@@ -26,6 +26,13 @@ void Image::setPixel(int x, int y, const Vec3& color) {
     pixels_[static_cast<size_t>(y * width_ + x)] = color;
 }
 
+Vec3 Image::getPixel(int x, int y) const {
+    if (x < 0 || y < 0 || x >= width_ || y >= height_) {
+        return {0.0, 0.0, 0.0};
+    }
+    return pixels_[static_cast<size_t>(y * width_ + x)];
+}
+
 bool Image::savePPM(const std::string& filePath) const {
     std::ofstream out(filePath, std::ios::binary);
     if (out.fail()) {
