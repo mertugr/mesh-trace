@@ -1,4 +1,5 @@
 <scene>
+    <samples>1</samples>
     <maxraytracedepth>4</maxraytracedepth>
     <background>15 20 30</background>
 
