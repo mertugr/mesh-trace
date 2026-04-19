@@ -62,10 +62,10 @@ No external dependencies — zlib and other system libraries are **not** require
 ### Examples
 ```bash
 # Render to PNG
-./raytracer scene_full_test.xml output.png
+./raytracer test.xml output.png
 
 # Render to PPM
-./raytracer scene_full_test.xml output.ppm
+./raytracer test.xml output.ppm
 
 # UV/texture debug scene
 ./raytracer scene_uv_debug.xml output_uv.png
@@ -82,7 +82,7 @@ open output.png
 
 | File | Description |
 |---|---|
-| `scene_full_test.xml` | Full feature scene — 4 meshes, 3 lights, textures, mirror, multiple materials |
+| `test.xml` | Anti-aliasing and refraction/transparency test scene — 6 meshes (3 colored walls, glass cube, floor, AA test triangle), 2 point lights |
 | `scene_uv_debug.xml` | UV coordinate and texture blending verification scene |
 
 ---
@@ -132,7 +132,7 @@ Measured on an 800×800 image:
 
 | Scene | Triangles | Wall time |
 |---|---|---|
-| `scene_full_test.xml` | 8 | ~0.06 s |
+| `test.xml` | 21 | ~0.1 s |
 | `scene_uv_debug.xml` | 2 | ~0.03 s |
 
 For large meshes (1000+ triangles), the BVH ensures render time stays fast. Without BVH the cost scales linearly with triangle count; with BVH it scales logarithmically.

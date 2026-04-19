@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Build artifacts
+*.o
+*.obj
+/raytracer
+/tests/test_runner
+/build/
+
+# Rendered output
+/output.png
+/output.ppm
+/test_output.png
+/baseline.png
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Python env (if used by scripts)
+.venv/
+__pycache__/

@@ -37,7 +37,7 @@ test: $(TEST_TARGET)
 	./$(TEST_TARGET)
 
 run: $(TARGET)
-	./$(TARGET) scene_full_test.xml output.png
+	./$(TARGET) test.xml output.png
 
 clean:
 	rm -f $(LIB_OBJS) src/main.o tests/test_main.o $(TARGET) $(TEST_TARGET) output.ppm output.png
