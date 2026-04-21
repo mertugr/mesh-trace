@@ -1,43 +1,44 @@
-CXX := c++
-CXXFLAGS := -std=c++17 -O2 -Wall -Wextra -pthread -I. -Iinclude
-LDFLAGS := -pthread
+CXX      ?= clang++
+CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -Wpedantic -pthread
+LDFLAGS  ?= -pthread
 
-TARGET := raytracer
+SRC_DIR := src
+BIN     := raytracer
 
-# Sources shared between the renderer and the test binary (everything except main.cpp)
-LIB_SRCS := \
-	tinyxml2.cpp \
-	src/core/BVH.cpp \
-	src/io/Image.cpp \
-	src/io/SceneParser.cpp \
-	src/render/Renderer.cpp \
-	src/scene/Camera.cpp \
-	src/scene/Scene.cpp \
-	src/scene/Texture.cpp \
-	src/scene/Triangle.cpp
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+OBJS := $(SRCS:.cpp=.o)
+DEPS := $(OBJS:.o=.d)
 
-LIB_OBJS := $(LIB_SRCS:.cpp=.o)
+# stb_impl.cpp compiles vendored single-header libraries that trip modern
+# warnings. Build them with warnings relaxed.
+STB_OBJ := $(SRC_DIR)/stb_impl.o
 
-TEST_TARGET := tests/test_runner
+.PHONY: all clean debug run-simple run-mirror run-many
 
-.PHONY: all clean run test
+all: $(BIN)
 
-all: $(TARGET)
+$(BIN): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(LDFLAGS)
 
-$(TARGET): $(LIB_OBJS) src/main.o
-	$(CXX) $(LIB_OBJS) src/main.o -o $@ $(LDFLAGS)
+$(STB_OBJ): $(SRC_DIR)/stb_impl.cpp
+	$(CXX) -std=c++17 -O2 -w -MMD -MP -c $< -o $@
 
-$(TEST_TARGET): $(LIB_OBJS) tests/test_main.o
-	$(CXX) $(LIB_OBJS) tests/test_main.o -o $@ $(LDFLAGS)
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-test: $(TEST_TARGET)
-	./$(TEST_TARGET)
-
-run: $(TARGET)
-	./$(TARGET) test.xml output.png
+debug: CXXFLAGS := -std=c++17 -O0 -g -Wall -Wextra -pthread
+debug: clean all
 
 clean:
-	rm -f $(LIB_OBJS) src/main.o tests/test_main.o $(TARGET) $(TEST_TARGET) output.ppm output.png
+	rm -f $(OBJS) $(DEPS) $(BIN)
+
+run-simple: $(BIN)
+	./$(BIN) scenes/cube_simple.xml
+
+run-mirror: $(BIN)
+	./$(BIN) scenes/mirror_scene.xml
+
+run-many: $(BIN)
+	./$(BIN) scenes/grid_large.xml
+
+-include $(DEPS)

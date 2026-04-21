@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A reflective cube behind a diffuse cube to exercise recursive reflection. -->
+<scene>
+    <maxraytracedepth>6</maxraytracedepth>
+    <background>5 5 15</background>
+
+    <camera>
+        <position>0 2 7</position>
+        <gaze>0 -0.25 -0.97</gaze>
+        <up>0 1 0</up>
+        <nearplane>-0.5 0.5 -0.5 0.5</nearplane>
+        <neardistance>1</neardistance>
+        <imageresolution>800 600</imageresolution>
+    </camera>
+
+    <lights>
+        <ambientlight>20 20 20</ambientlight>
+        <pointlight id="key">
+            <position>3 7 5</position>
+            <intensity>18000 18000 16000</intensity>
+        </pointlight>
+        <pointlight id="rim">
+            <position>-5 5 -3</position>
+            <intensity>6000 5000 8000</intensity>
+        </pointlight>
+    </lights>
+
+    <materials>
+        <material id="mirror">
+            <ambient>0.05 0.05 0.05</ambient>
+            <diffuse>0.05 0.05 0.05</diffuse>
+            <specular>1 1 1</specular>
+            <mirrorreflectance>0.9 0.9 0.9</mirrorreflectance>
+            <phongexponent>500</phongexponent>
+            <texturefactor>0</texturefactor>
+        </material>
+        <material id="gold">
+            <ambient>0.4 0.3 0.05</ambient>
+            <diffuse>0.9 0.7 0.2</diffuse>
+            <specular>0.8 0.7 0.3</specular>
+            <mirrorreflectance>0.2 0.15 0.05</mirrorreflectance>
+            <phongexponent>60</phongexponent>
+            <texturefactor>0</texturefactor>
+        </material>
+        <material id="floor">
+            <ambient>0.2 0.2 0.25</ambient>
+            <diffuse>0.55 0.55 0.6</diffuse>
+            <specular>0.1 0.1 0.1</specular>
+            <mirrorreflectance>0.15 0.15 0.15</mirrorreflectance>
+            <phongexponent>20</phongexponent>
+            <texturefactor>0</texturefactor>
+        </material>
+    </materials>
+
+    <vertexdata>
+        <!-- mirror cube, centered at (-1.4, 0, -0.5), side 1.6 -->
+        -2.2 -0.8 -1.3
+        -0.6 -0.8 -1.3
+        -0.6 -0.8  0.3
+        -2.2 -0.8  0.3
+        -2.2  0.8 -1.3
+        -0.6  0.8 -1.3
+        -0.6  0.8  0.3
+        -2.2  0.8  0.3
+
+        <!-- gold cube, centered at (1.3, -0.3, 0.2), side 1.0 -->
+         0.8 -0.8 -0.3
+         1.8 -0.8 -0.3
+         1.8 -0.8  0.7
+         0.8 -0.8  0.7
+         0.8  0.2 -0.3
+         1.8  0.2 -0.3
+         1.8  0.2  0.7
+         0.8  0.2  0.7
+
+        <!-- floor plane (y = -0.8) -->
+       -10 -0.8 -10
+        10 -0.8 -10
+        10 -0.8   5
+       -10 -0.8   5
+    </vertexdata>
+
+    <normaldata>
+        0 -1  0
+        0  1  0
+        0  0  1
+        0  0 -1
+        1  0  0
+       -1  0  0
+    </normaldata>
+
+    <objects>
+        <mesh id="mirrorCube">
+            <materialid>mirror</materialid>
+            <faces>
+                1//1 2//1 3//1
+                1//1 3//1 4//1
+                5//2 8//2 7//2
+                5//2 7//2 6//2
+                4//3 3//3 7//3
+                4//3 7//3 8//3
+                2//4 1//4 5//4
+                2//4 5//4 6//4
+                2//5 6//5 7//5
+                2//5 7//5 3//5
+                1//6 4//6 8//6
+                1//6 8//6 5//6
+            </faces>
+        </mesh>
+        <mesh id="goldCube">
+            <materialid>gold</materialid>
+            <faces>
+                 9//1 10//1 11//1
+                 9//1 11//1 12//1
+                13//2 16//2 15//2
+                13//2 15//2 14//2
+                12//3 11//3 15//3
+                12//3 15//3 16//3
+                10//4  9//4 13//4
+                10//4 13//4 14//4
+                10//5 14//5 15//5
+                10//5 15//5 11//5
+                 9//6 12//6 16//6
+                 9//6 16//6 13//6
+            </faces>
+        </mesh>
+        <mesh id="floor">
+            <materialid>floor</materialid>
+            <faces>
+                17//2 18//2 19//2
+                17//2 19//2 20//2
+            </faces>
+        </mesh>
+    </objects>
+</scene>

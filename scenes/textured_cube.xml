@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cube with a checkerboard texture. texturefactor=0.7 blends most of the
+     texture color while still letting shading contribute some shading terms. -->
+<scene>
+    <maxraytracedepth>3</maxraytracedepth>
+    <background>15 15 30</background>
+
+    <camera>
+        <position>3 2.5 3</position>
+        <gaze>-0.67 -0.45 -0.59</gaze>
+        <up>0 1 0</up>
+        <nearplane>-0.5 0.5 -0.5 0.5</nearplane>
+        <neardistance>1</neardistance>
+        <imageresolution>600 600</imageresolution>
+    </camera>
+
+    <lights>
+        <ambientlight>40 40 40</ambientlight>
+        <pointlight id="key">
+            <position>6 8 5</position>
+            <intensity>22000 22000 22000</intensity>
+        </pointlight>
+    </lights>
+
+    <materials>
+        <material id="tex">
+            <ambient>1 1 1</ambient>
+            <diffuse>0.9 0.9 0.9</diffuse>
+            <specular>0.2 0.2 0.2</specular>
+            <mirrorreflectance>0 0 0</mirrorreflectance>
+            <phongexponent>25</phongexponent>
+            <texturefactor>0.7</texturefactor>
+        </material>
+    </materials>
+
+    <vertexdata>
+        -1 -1 -1
+         1 -1 -1
+         1 -1  1
+        -1 -1  1
+        -1  1 -1
+         1  1 -1
+         1  1  1
+        -1  1  1
+    </vertexdata>
+
+    <texturedata>
+        0 0
+        1 0
+        1 1
+        0 1
+    </texturedata>
+
+    <normaldata>
+        0 -1  0
+        0  1  0
+        0  0  1
+        0  0 -1
+        1  0  0
+       -1  0  0
+    </normaldata>
+
+    <textureimage>checker.ppm</textureimage>
+
+    <objects>
+        <mesh id="cube">
+            <materialid>tex</materialid>
+            <faces>
+                1/1/1 2/2/1 3/3/1
+                1/1/1 3/3/1 4/4/1
+                5/1/2 8/2/2 7/3/2
+                5/1/2 7/3/2 6/4/2
+                4/1/3 3/2/3 7/3/3
+                4/1/3 7/3/3 8/4/3
+                2/1/4 1/2/4 5/3/4
+                2/1/4 5/3/4 6/4/4
+                2/1/5 6/2/5 7/3/5
+                2/1/5 7/3/5 3/4/5
+                1/1/6 4/2/6 8/3/6
+                1/1/6 8/3/6 5/4/6
+            </faces>
+        </mesh>
+    </objects>
+</scene>
