@@ -38,7 +38,8 @@ private:
     std::vector<int> triIndices; // permutation of triangle indices (leaf lookup)
 
     int buildRecursive(std::vector<int>& indices, const std::vector<Triangle>& tris,
-                       const std::vector<Vec3>& verts, int start, int end);
+                       const std::vector<Vec3>& verts,
+                       const std::vector<Vec3>& centroids, int start, int end);
     static bool intersectTriangle(const Ray& r, const Triangle& tri,
                                   const std::vector<Vec3>& verts,
                                   float& tOut, float& b1Out, float& b2Out);

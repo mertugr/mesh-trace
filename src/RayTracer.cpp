@@ -71,7 +71,15 @@ Vec3 RayTracer::shade(const Ray& r, const Hit& hit) const {
     // Flip toward the incoming ray so we always shade the front of what we see.
     if (n.dot(r.direction) > 0.0f) n = -n;
 
-    // Offset the surface point along the normal to avoid self-shadowing.
+    // Geometric face normal oriented toward the ray. Used for the reflection
+    // ray origin offset; offsetting along the face normal (rather than the
+    // smoothed shading normal) keeps the spawn point on the correct side of
+    // the actual triangle for grazing reflections.
+    Vec3 gn = hit.faceNormal;
+    if (gn.dot(r.direction) > 0.0f) gn = -gn;
+
+    // Offset the surface point along the shading normal for shadow queries
+    // (matches the original tuning for clean shadows on smooth meshes).
     Vec3 pOffset = hit.point + n * kShadowEpsilon;
     Vec3 viewDir = -r.direction; // already unit
 
@@ -125,7 +133,10 @@ Vec3 RayTracer::shade(const Ray& r, const Hit& hit) const {
         Vec3 d = r.direction;
         Vec3 refl = d - n * (2.0f * n.dot(d));
         refl = refl.normalized();
-        Ray reflected(pOffset, refl, r.depth + 1);
+        // Offset along the geometric face normal so reflection rays at
+        // grazing angles never start beneath the surface.
+        Vec3 reflOrigin = hit.point + gn * kShadowEpsilon;
+        Ray reflected(reflOrigin, refl, r.depth + 1);
         Vec3 reflColor = traceRay(reflected);
         color += mat.mirrorReflectance * reflColor;
     }

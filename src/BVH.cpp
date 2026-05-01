@@ -16,21 +16,15 @@ AABB triangleBounds(const Triangle& t, const std::vector<Vec3>& verts) {
     return b;
 }
 
-Vec3 triangleCentroid(const Triangle& t, const std::vector<Vec3>& verts) {
-    return (verts[t.v0] + verts[t.v1] + verts[t.v2]) * (1.0f / 3.0f);
-}
-
 } // namespace
 
 bool BVH::intersectTriangle(const Ray& r, const Triangle& tri,
                             const std::vector<Vec3>& verts,
                             float& tOut, float& b1Out, float& b2Out) {
-    // Möller-Trumbore.
+    // Möller-Trumbore using precomputed edges (set by Scene::load).
     const Vec3& p0 = verts[tri.v0];
-    const Vec3& p1 = verts[tri.v1];
-    const Vec3& p2 = verts[tri.v2];
-    Vec3 e1 = p1 - p0;
-    Vec3 e2 = p2 - p0;
+    const Vec3& e1 = tri.e1;
+    const Vec3& e2 = tri.e2;
     Vec3 pvec = r.direction.cross(e2);
     float det = e1.dot(pvec);
     if (std::fabs(det) < 1e-8f) return false;
@@ -56,11 +50,21 @@ void BVH::build(const std::vector<Triangle>& tris, const std::vector<Vec3>& vert
     triIndices.resize(tris.size());
     for (std::size_t i = 0; i < tris.size(); ++i) triIndices[i] = static_cast<int>(i);
     nodes.reserve(tris.size() * 2);
-    buildRecursive(triIndices, tris, verts, 0, static_cast<int>(tris.size()));
+
+    // Precompute centroids once; the recursive splitter reads them by index
+    // instead of recomputing per comparison.
+    std::vector<Vec3> centroids(tris.size());
+    for (std::size_t i = 0; i < tris.size(); ++i) {
+        const Triangle& t = tris[i];
+        centroids[i] = (verts[t.v0] + verts[t.v1] + verts[t.v2]) * (1.0f / 3.0f);
+    }
+
+    buildRecursive(triIndices, tris, verts, centroids, 0, static_cast<int>(tris.size()));
 }
 
 int BVH::buildRecursive(std::vector<int>& indices, const std::vector<Triangle>& tris,
-                        const std::vector<Vec3>& verts, int start, int end) {
+                        const std::vector<Vec3>& verts,
+                        const std::vector<Vec3>& centroids, int start, int end) {
     int nodeIdx = static_cast<int>(nodes.size());
     nodes.push_back({});
     Node& node = nodes[nodeIdx];
@@ -70,7 +74,7 @@ int BVH::buildRecursive(std::vector<int>& indices, const std::vector<Triangle>& 
     for (int i = start; i < end; ++i) {
         const Triangle& t = tris[indices[i]];
         bbox.expand(triangleBounds(t, verts));
-        centroidBounds.expand(triangleCentroid(t, verts));
+        centroidBounds.expand(centroids[indices[i]]);
     }
     node.bbox = bbox;
 
@@ -90,16 +94,14 @@ int BVH::buildRecursive(std::vector<int>& indices, const std::vector<Triangle>& 
     }
 
     int mid = start + count / 2;
-    // nth_element sorts by centroid along chosen axis.
+    // nth_element sorts by centroid along chosen axis using the cached array.
     std::nth_element(indices.begin() + start, indices.begin() + mid, indices.begin() + end,
                      [&](int a, int b) {
-                         float ca = triangleCentroid(tris[a], verts)[axis];
-                         float cb = triangleCentroid(tris[b], verts)[axis];
-                         return ca < cb;
+                         return centroids[a][axis] < centroids[b][axis];
                      });
 
-    int leftIdx = buildRecursive(indices, tris, verts, start, mid);
-    int rightIdx = buildRecursive(indices, tris, verts, mid, end);
+    int leftIdx = buildRecursive(indices, tris, verts, centroids, start, mid);
+    int rightIdx = buildRecursive(indices, tris, verts, centroids, mid, end);
     // NB: pushing children invalidates `node` reference, so re-access by index.
     nodes[nodeIdx].left = leftIdx;
     nodes[nodeIdx].right = rightIdx;

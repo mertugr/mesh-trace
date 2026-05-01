@@ -14,6 +14,9 @@ struct Triangle {
 
     // Geometric face normal, precomputed for fast backface handling.
     Vec3 faceNormal{0, 0, 1};
+    // Precomputed edges p1-p0 and p2-p0 for Möller-Trumbore.
+    Vec3 e1{0, 0, 0};
+    Vec3 e2{0, 0, 0};
 };
 
 struct Mesh {

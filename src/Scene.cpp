@@ -264,7 +264,9 @@ Scene Scene::load(const std::string& xmlPath) {
                 const Vec3& p0 = s.vertices[tri.v0];
                 const Vec3& p1 = s.vertices[tri.v1];
                 const Vec3& p2 = s.vertices[tri.v2];
-                tri.faceNormal = (p1 - p0).cross(p2 - p0).normalized();
+                tri.e1 = p1 - p0;
+                tri.e2 = p2 - p0;
+                tri.faceNormal = tri.e1.cross(tri.e2).normalized();
                 s.triangles.push_back(tri);
             }
             mesh.triangleCount = static_cast<int>(s.triangles.size()) - mesh.firstTriangle;
